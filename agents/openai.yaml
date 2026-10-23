@@ -1,0 +1,4 @@
+interface:
+  display_name: "OSS-Factory"
+  short_description: "Build software with a minimal, evidence-backed OSS combination"
+  default_prompt: "Use $oss-factory to choose suitable open-source components and deliver the smallest working version of my software."
