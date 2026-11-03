@@ -12,9 +12,11 @@ requests, deliver the decision and stop. This skill grants no tool permissions.
    Keep user requirements separate from suggested stack choices. For a small app, a short
    plan suffices; use an available BMAD workflow for substantial uncertainty, without
    installing it or inventing background host access.
-2. Read [component selection](references/selection.md). Prefer the optional existing
-   OSS-Factory engine when available; otherwise use the host's permitted search/read tools
-   and package metadata. The public skill works without private source or services.
+2. Read [component selection](references/selection.md). When the optional OSS-Factory
+   engine is installed, use its `scout`/`check` commands ([engine mode](references/engine.md))
+   to collect pinned repository, package, license and resolver evidence; otherwise use the
+   host's permitted search/read tools and package metadata. The public skill works without
+   private source or services.
 3. Review project purpose before quality. Distinguish a business app, library/SDK, CLI,
    development tool, example/tutorial and scaffold. Map evidence to required capabilities.
    README claims are declarations, not executed behavior. Missing evidence stays unknown.

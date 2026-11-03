@@ -28,9 +28,9 @@ working combination, test it, and stop when the user's scope is met.
 没有私有引擎时，宿主仍可用获准的搜索、仓库读取、包元数据、代码工具和测试
 完成基础选型与开发；离线时优先验证已安装依赖，并如实记录无法查询的信息。
 
-私有引擎是可选增强，可提供既有 Candidate Fit、Ranking、Compatibility
-及专业供应商适配器；本目录不提供这些算法或一个可直接使用的公共服务。
-引擎连接需使用者自己提供可用入口，详见 [可选模式](references/engine.md)。
+私有引擎是可选增强：安装后，宿主可调用它的 `scout` 命令，取得固定 commit 的候选、
+包、许可证和能力原句证据；调用 `check` 命令，用真实 pip/npm 解析核查依赖组合。
+本目录不提供这些算法或一个可直接使用的公共服务。详见 [可选模式](references/engine.md)。
 
 功能匹配、质量、安全、依赖验证和兼容性分别判断。README 声明不等于运行验证，
 Star 不证明功能，未知许可证和版本不由模型猜测。Skill 不提供操作系统隔离，
@@ -53,9 +53,13 @@ Claude Code 和 Cursor 的文档适配。状态分别保留为：
 
 ```text
 CODEX_NATIVE_SKILL_LOAD = NOT_VERIFIED
+CLAUDE_CODE_SKILL_DISCOVERY = VERIFIED（Claude Code 2.1.309，项目级 .claude/skills，2026-11-03）
 CLAUDE_CODE_RUNTIME = NOT_VERIFIED
 CURSOR_RUNTIME = NOT_VERIFIED
 ```
+
+Claude Code 的启动事件已把 `oss-factory` 列入可用 skills 和斜杠命令；但该独立 CLI
+当时未登录，没有发出模型请求，所以「读取并执行 Skill」仍待验证。
 
 已验证：Skill 格式和离线包检查；当前 Codex 会话显式读取指令后完成的独立
 记账集成示例。原生 CLI 测试进入 `turn.started` 后模型请求超时，没有证明
@@ -69,4 +73,5 @@ Copyright (c) 2026 VonEis
 
 许可范围仅覆盖本公开包，详见 [LICENSE_NOTICE.md](LICENSE_NOTICE.md)，
 不代表私有 OSS-Factory Core、审计记录或外部第三方内容开源。
-当前为本地准备的 `v0.1.0`，未执行 GitHub 发布；可供人工上传，宿主运行兼容性尚待验证。
+`v0.1.0` 已作为 GitHub 预发布版公开。此后本地新增的改动（引擎命令行模式说明、
+Claude Code 发现验证状态）尚未发布；需要时按 [PUBLISH.md](PUBLISH.md) 人工发布新版本。
