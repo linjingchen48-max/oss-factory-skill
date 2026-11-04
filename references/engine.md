@@ -16,13 +16,17 @@ The engine gathers tool facts; you (the host) do the understanding and the decis
    `oss-factory schema scout` for the exact contract. Keep the user's words in `need`.
 2. `oss-factory scout request.json --out <evidence dir>` performs read-only GitHub searches
    through the user's `gh` login, pins each candidate to a full commit SHA, reads root
-   README/LICENSE/manifests, and queries deps.dev for the package's version, declared
-   license and advisories. It prints a Markdown card per candidate and writes JSON evidence.
-   A capability is "claimed" only by an exact pinned README line; "unknown" is not "absent".
-   The engine never selects. Exit code 4 means no candidate was found.
+   README/LICENSE/manifests, shows the latest GitHub release, and queries deps.dev for the
+   package's version, declared license and advisories. When the README does not mention a
+   capability, it reads a few pinned doc files whose path names that capability. It prints
+   a Markdown card per candidate and writes JSON evidence. A capability is "claimed" only by
+   an exact pinned line (description, README or docs, with a link); "unknown" is not
+   "absent". The engine never selects. Exit code 4 means no candidate was found.
 3. Decide with the cards: purpose first, then declared capabilities, license, maintenance,
    language/runtime and dependency surface. Read more of a shortlisted repository with your
-   own tools when a required capability stays unknown. Prefer libraries over whole apps.
+   own tools when a required capability stays unknown. Scout both an existing tool/plugin
+   and building-block libraries when either could fit: reuse a tool that covers the whole
+   need with a thin wrapper, otherwise compose libraries; do not glue whole applications.
 4. `oss-factory check --ecosystem python|node --require "<pkg spec>" ... --out <dir>`
    asks the real resolver (pip dry-run binary-only for the engine's interpreter, or npm
    lock-only without scripts for the local Node) whether the chosen packages resolve
