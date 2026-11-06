@@ -35,6 +35,11 @@ The engine gathers tool facts; you (the host) do the understanding and the decis
    runtime version returns unknown rather than a guess.
 5. Then implement, install into the project's own environment, and test as in
    [delivery](delivery.md). Cite the evidence files in the final report.
+6. Before delivering, run `oss-factory audit <project dir> --out <dir>`. It checks every direct
+   dependency in the root manifests against registry data: missing from the registry (a typo
+   or invented name), known advisories for the version used, very new packages, stale or
+   deprecated ones, non-registry sources and licenses outside the allow-list. Exit code 6
+   means a critical finding: fix it, or report it to the user, before calling the work done.
 
 Neither command clones, builds or runs candidate code. Network failures and missing data are
 reported as issues/unknown; do not fill them in from memory.
