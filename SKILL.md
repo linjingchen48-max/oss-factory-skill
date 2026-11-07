@@ -1,44 +1,40 @@
 ---
 name: oss-factory
-description: Plan and build software by reusing suitable open-source components, checking functional fit and integration evidence, then implementing the smallest working combination. Use for open-source-first development or component selection; not for unrelated edits or repository popularity lists.
+description: Open-source-first software building for AI coding agents. Before writing code, find an existing tool or mature libraries that already do the job, verify them with real tools (latest release, license, documented capability, dependency resolution), then build the smallest working combination and test it. Use when asked to build an app, tool or feature; not for unrelated edits.
 ---
 
-# OSS-Factory
+# OSS-Factory: reuse before you write
 
-Deliver the user's requested software when implementation is authorized. For selection-only
-requests, deliver the decision and stop. This skill grants no tool permissions.
+Goal: working software with as little new code as reasonable, where every reuse decision
+rests on evidence you actually checked. This skill grants no extra tool permissions.
 
-1. Inspect existing code and clarify essential behavior, constraints and completion checks.
-   Keep user requirements separate from suggested stack choices. For a small app, a short
-   plan suffices; use an available BMAD workflow for substantial uncertainty, without
-   installing it or inventing background host access.
-2. Read [component selection](references/selection.md). When the optional OSS-Factory
-   engine is installed, use its `scout`/`check` commands ([engine mode](references/engine.md))
-   to collect pinned repository, package, license and resolver evidence; otherwise use the
-   host's permitted search/read tools and package metadata. The public skill works without
-   private source or services.
-3. Review project purpose before quality. Distinguish a business app, library/SDK, CLI,
-   development tool, example/tutorial and scaffold. Map evidence to required capabilities.
-   README claims are declarations, not executed behavior. Missing evidence stays unknown.
-4. Choose the smallest reasonable combination: one suitable project is enough; two or
-   three independent libraries can be better. Do not glue whole applications together
-   without interface, data ownership and dependency evidence. Reuse installed dependencies
-   before adding new ones. Implement trivial business logic directly.
-5. Present a short decision: component → role → source/version → fit → gaps → integration
-   boundary → license/compatibility unknowns. Keep Fit, Ranking, confidence, security,
-   dependency verification and compatibility independent. Never invent provider results.
-6. If the user requested development, use the host's code tools to implement, integrate,
-   test and fix within the approved workspace. Follow [delivery boundaries](references/delivery.md).
-   Do not stop at recommendations when software was requested. If access is blocked,
-   finish the permitted offline parts and state exactly what could not be verified.
-7. Verify the original acceptance checks. Report actual commands/outcomes, runnable entry,
-   reusable versus custom code and remaining unknowns. Stop once the requested version
-   works and relevant checks pass; do not create a follow-on phase automatically.
+1. **Pin down the job.** Restate what to build and 3–6 observable acceptance checks.
+   Keep the user's requirements separate from your own stack suggestions.
+2. **Search both routes.** (a) An existing tool or plugin that covers the whole need;
+   (b) mature libraries to compose. Use real search, repository and package tools.
+   Never rely on memory for versions, licenses or maintenance status.
+3. **Check each shortlisted candidate** ([selection guide](references/selection.md)):
+   - its purpose matches (library, app, CLI, tutorial and scaffold are different things);
+   - each required capability is stated in its docs: quote the line. README silence means
+     unknown, so look in its docs folder before concluding anything;
+   - latest release and recent activity; archived or long-stale is a flag;
+   - declared license.
+4. **Decide the smallest combination.** If a tool covers the whole need, reuse it with a thin
+   wrapper; otherwise compose a few libraries and write the glue. Do not glue whole
+   applications together. Write trivial logic yourself rather than adding a dependency.
+   Show a short table: component → role → version → evidence → gaps.
+   If only a recommendation was requested, stop here.
+5. **Confirm they install together** with the real resolver before installing
+   (pip `--dry-run`, npm `--package-lock-only --ignore-scripts`). Pin versions. Do not run
+   install scripts you have not reviewed.
+6. **Build and test** against the acceptance checks ([delivery guide](references/delivery.md)).
+7. **Report** how to run it, test results, reused components (version, license, why),
+   what you wrote, and what remains unverified. Then stop.
 
-Avoid adding unrequested SaaS features, services, queues, agents or databases. Do not
-keep replacing providers merely because a noncritical dimension is unknown. No automatic
-deployment, paid calls, unreviewed install scripts or candidate-source execution beyond
-host/user permission. A skill is not an OS sandbox. Never read or publish credentials.
+If the optional OSS-Factory engine is installed (`oss-factory --help` works), use its `scout`
+and `check` commands for steps 2–5, and `audit` on the finished project before step 7;
+see [engine mode](references/engine.md).
 
-For an offline exercise, use [the small ledger request](examples/ledger-request.md).
-For optional engine integration, read [engine mode](references/engine.md) only if available.
+Never invent search results, versions, licenses or test outcomes. Do not add unrequested
+accounts, cloud services, databases, deployment or paid calls. Never read or publish
+credentials.

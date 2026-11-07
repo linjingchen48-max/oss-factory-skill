@@ -1,77 +1,110 @@
 # OSS-Factory Skill
 
-Open-source-first software delivery: choose suitable components, integrate the smallest
-working combination, test it, and stop when the user's scope is met.
+**Make your AI coding agent show its work when it picks dependencies.**
 
-面向 AI 编程宿主的开源优先软件开发工作流 Skill。优先复用成熟开源组件，
-按接口和证据选择最小合理组合，不盲目拼接项目。目标是交付软件，而不是只列 GitHub 推荐。
-它指导需求拆解、用途与功能匹配、许可证和依赖核对、最小组合、集成测试与交付。
-小项目用短计划；复杂项目可复用已可用的 BMAD，不强制安装或启动其他框架。
+With this skill, the agent checks existing tools and libraries before writing code. It verifies
+every candidate with real tools, not memory: latest release, license, documented capability,
+and whether the packages install together. Then it builds the smallest working combination
+and reports why each dependency is there.
 
-## 使用
+[中文说明](#中文说明)
 
-按 [安装说明](INSTALL.md) 将整个目录复制到宿主支持的 Skill 位置。
-在 Codex 中显式输入：
+## What it changed in a controlled test
 
-```text
-使用 $oss-factory，在当前项目制作个人记账工具：收入支出、月度统计、
-简单图表、本地保存。优先复用已有依赖；不做账号、云服务或部署。
+We gave the same 4 small CLI tasks (2 Python, 2 Node) to fresh agent runs, with and without the
+skill. The model and machine were the same; the only difference was one sentence telling the
+agent to follow the skill. The results were graded afterwards: each project's own tests rerun,
+dependencies audited against registry data, and every tool run on tricky inputs prepared
+before the runs. [Full write-up and caveats](examples/ab-eval-2026-11.md).
+
+| | Without skill | With skill |
+|---|---|---|
+| Tools correct on the shared tricky inputs | 4/4 | 4/4 |
+| Critical dependency problems | 0 | 0 |
+| Own (non-test) code written | 458 lines | **346 lines (−24%)** |
+| Alternatives compared, with reasons, written down | 0/4 | **4/4** |
+| Install-ability checked before installing (pip/npm dry-run) | 0/3 | **4/4** |
+| Licenses recorded | 0/3 | **4/4** |
+| Tokens / wall time | 292k / 21.5 min | 326k (+11%) / 24.1 min (+12%) |
+
+The 0/3 means one task in that group used no dependencies, so the item did not apply.
+
+**What this does and does not show.** On small, well-trodden tasks, a current model already picks
+sensible libraries without help: the skill did not make the software better. What it reliably
+added was a paper trail (which candidates were considered, why, and under what license) and
+somewhat leaner code, for roughly 10% more time. Each cell ran once, so treat this as an
+illustration, not a statistic. Larger or murkier projects are untested.
+
+## What the agent does with it
+
+1. Writes down what to build and a few checks that prove it is done.
+2. Searches both routes: a ready-made tool that covers the whole job, and libraries to compose.
+3. Checks candidates with real tools: latest release, license, and whether the docs actually state
+   the needed capability.
+4. Picks the smallest combination and shows a short decision table.
+5. Confirms the packages install together (pip/npm dry-run) before installing anything.
+6. Builds, tests, and reports what was reused, what was written, and what is still unverified.
+
+## Install
+
+Claude Code (personal, all projects):
+
+```bash
+git clone https://github.com/linjingchen48-max/oss-factory-skill ~/.claude/skills/oss-factory
 ```
 
-已有项目先检查代码和用户修改；新项目先指定独立目录。只要求选型时，Skill
-停在选型结论；要求开发且有权限时，宿主继续编写、运行测试并交付可运行软件。
-更多边界见 [最小示例](examples/ledger-request.md)。
+Codex: clone into `~/.agents/skills/oss-factory` (or `<project>/.agents/skills/oss-factory`).
+Cursor: `~/.cursor/skills/oss-factory`. Details: [INSTALL.md](INSTALL.md).
+No API keys, hooks or extra permissions.
 
-## 公开版与私有引擎
-
-公开版是工作流指令，不包含私有引擎源码、历史审计数据或服务凭据。
-没有私有引擎时，宿主仍可用获准的搜索、仓库读取、包元数据、代码工具和测试
-完成基础选型与开发；离线时优先验证已安装依赖，并如实记录无法查询的信息。
-
-私有引擎是可选增强：安装后，宿主可调用它的 `scout` 命令，取得固定 commit 的候选、
-包、许可证和能力原句证据；调用 `check` 命令，用真实 pip/npm 解析核查依赖组合。
-本目录不提供这些算法或一个可直接使用的公共服务。详见 [可选模式](references/engine.md)。
-
-功能匹配、质量、安全、依赖验证和兼容性分别判断。README 声明不等于运行验证，
-Star 不证明功能，未知许可证和版本不由模型猜测。Skill 不提供操作系统隔离，
-不扩大宿主工具权限；外部发布、付费、系统修改及不可信脚本仍受原审批约束。
-
-## 内容
-
-- `SKILL.md`：主流程、触发范围、完成条件。
-- `references/`：选型、交付边界和可选引擎说明，按需读取。
-- `examples/`：最小输入案例。
-- `agents/openai.yaml`：Codex 显示与默认提示。
-- `INSTALL.md`：跨宿主安装与验证；平台未实测时明确标注。
-- `PUBLISH.md`：人工 GitHub 发布、安装与回滚步骤，建议首版 `v0.1.0`。
-- `SHA256SUMS`：发布文件校验清单（不包含该清单自身）。
-
-## 宿主支持与验证状态
-
-以 Codex 为首个适配目标，安装方式见 [INSTALL.md](INSTALL.md)；同时提供
-Claude Code 和 Cursor 的文档适配。状态分别保留为：
+## Verification status
 
 ```text
-CODEX_NATIVE_SKILL_LOAD = NOT_VERIFIED
-CLAUDE_CODE_SKILL_DISCOVERY = VERIFIED（Claude Code 2.1.309，项目级 .claude/skills，2026-11-03）
+CLAUDE_CODE_SKILL_DISCOVERY = VERIFIED (Claude Code 2.1.309, project-level, 2026-11-03)
 CLAUDE_CODE_RUNTIME = NOT_VERIFIED
+CODEX_NATIVE_SKILL_LOAD = NOT_VERIFIED
 CURSOR_RUNTIME = NOT_VERIFIED
 ```
 
-Claude Code 的启动事件已把 `oss-factory` 列入可用 skills 和斜杠命令；但该独立 CLI
-当时未登录，没有发出模型请求，所以「读取并执行 Skill」仍待验证。
+In the controlled test, the agents read the skill because the prompt told them to. A host
+discovering and triggering it on its own, end to end, has not been verified yet.
 
-已验证：Skill 格式和离线包检查；当前 Codex 会话显式读取指令后完成的独立
-记账集成示例。原生 CLI 测试进入 `turn.started` 后模型请求超时，没有证明
-成功发现、读取和执行本 Skill；不能将超时直接归因于 Skill 缺陷。
-自动匹配也未验证。文档适配不等于宿主运行通过。
+## Optional engine
 
-## 发布状态与许可
+A separate, not-yet-public command-line engine automates the evidence work. `scout` searches
+GitHub, pins commits, quotes the docs and fetches deps.dev facts. `check` runs the real resolvers.
+`audit` produces a dependency report card for a finished project: invented package names, known
+advisories, stale or deprecated versions. The skill works fully without it.
+See [engine mode](references/engine.md).
 
-本目录原创 Skill 文件采用 [MIT License](LICENSE)。
-Copyright (c) 2026 VonEis
+## License
 
-许可范围仅覆盖本公开包，详见 [LICENSE_NOTICE.md](LICENSE_NOTICE.md)，
-不代表私有 OSS-Factory Core、审计记录或外部第三方内容开源。
-`v0.1.0` 已作为 GitHub 预发布版公开。此后本地新增的改动（引擎命令行模式说明、
-Claude Code 发现验证状态）尚未发布；需要时按 [PUBLISH.md](PUBLISH.md) 人工发布新版本。
+MIT, see [LICENSE](LICENSE) and [LICENSE_NOTICE.md](LICENSE_NOTICE.md).
+
+---
+
+## 中文说明
+
+**让 AI 编程助手在选依赖时，把理由摆出来。**
+
+装上这个 Skill 后，AI 写代码之前会先看有没有现成的工具和库，并用真实工具核查每个候选：
+最近一次发布时间、许可证、文档里是否明确写了所需功能、几个包能否装在一起。
+然后做出最小可用的组合，并说明每个依赖为什么在那里。
+
+**对照测试结果**：4 个小型命令行任务（Python 和 Node 各 2 个），分别让全新的 AI 在装和不装 Skill 的情况下完成。
+
+- **软件质量没有差别**：两组做出的工具在统一的刁钻输入上都 4/4 正确，都没有严重的依赖问题。
+- **装 Skill 后自写代码少 24%**：458 行降到 346 行。
+- **选型有据可查**：4/4 写明了比较过的候选、放弃理由和许可证，安装前都先确认依赖能装上；不装 Skill 时这些都没有记录。
+- **代价**：多用约 11% 的 token 和约 12% 的时间。
+
+如实说明：在这类小任务上，现在的模型不装 Skill 也能选对库。Skill 带来的主要是透明和精简，而不是更好的软件。
+每个格子只跑了一次，没有统计意义；更大的项目还没测过。
+
+安装（Claude Code，对所有项目生效）：
+
+```bash
+git clone https://github.com/linjingchen48-max/oss-factory-skill ~/.claude/skills/oss-factory
+```
+
+Codex、Cursor 的安装方式见 [INSTALL.md](INSTALL.md)。不需要 API Key，也不会扩大权限。
